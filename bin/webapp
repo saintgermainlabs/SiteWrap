@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# webapp            — SiteWrap dashboard (also: sitewrap)
+# webapp <id> — open one SiteWrap site (sites.yaml) in its own window, inside ONE capped
+# systemd --user scope per window (CPUQuota/MemoryMax from sites.yaml defaults or the site).
+#   webapp <id>              start (builds .venv on first run)
+#   webapp --no-scope <id>   start without systemd caps
+#   webapp --list            list sites
+# Native Wayland is fine (nothing is embedded); the dock matches via app_id = sitewrap-<id>.
+set -euo pipefail
+APP_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)"
+PY="$APP_DIR/.venv/bin/python"
+unset VIRTUAL_ENV PYTHONHOME
+export PATH="$HOME/.local/bin:$PATH" PYTHONPATH="$APP_DIR"
+if [[ ! -x "$PY" ]]; then "$APP_DIR/scripts/install.sh" --venv-only >&2; fi
+
+NO_SCOPE=""
+if [[ "${1:-}" == "--no-scope" ]]; then NO_SCOPE=1; shift; fi
+ID="${1:-}"
+if [[ -z "$ID" || "$ID" == -* ]]; then exec "$PY" -m sitewrap "$@"; fi
+
+if [[ -z "$NO_SCOPE" && -z "${SITEWRAP_SCOPED:-}" ]] && command -v systemd-run >/dev/null \
+   && systemd-run --user --scope --quiet true 2>/dev/null; then
+    if CAPS=$("$PY" -c 'import sys
+from sitewrap import sites
+s = sites.find(sys.argv[1]); print(s.cpu_quota or "-", s.memory_max or "-")' "$ID" 2>/dev/null); then
+        read -r CPU MEM <<<"$CAPS"
+        PROPS=()
+        [[ "$CPU" != "-" ]] && PROPS+=(-p "CPUQuota=$CPU")
+        [[ "$MEM" != "-" ]] && PROPS+=(-p "MemoryMax=$MEM")
+        exec systemd-run --user --scope --quiet --collect --unit="webapp-$ID-$$" "${PROPS[@]}" \
+            env SITEWRAP_SCOPED=1 "$0" "$@"
+    fi
+fi
+cd "$APP_DIR"
+exec "$PY" -m sitewrap "$@"

@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# your own config and icons stay local (start from sites.example.yaml)
+sites.yaml
+icons/*
+!icons/default.svg
+!icons/sitewrap.svg

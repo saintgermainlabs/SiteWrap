@@ -1,0 +1,68 @@
+# SiteWrap sites. Copy this file to sites.yaml (scripts/install.sh does it for you on the first run),
+# then edit sites.yaml. Each entry becomes a launcher "webapp <id>" with its own window, dock icon and
+# profile (~/.local/share/webapps/<id>). After editing, run scripts/install.sh to (re)generate the launchers.
+#
+# required: id (a-z0-9_-), name, description, url (http/https), icon (path relative to this file, absolute
+#           path, or http(s) URL; remote icons are downloaded into icons/)
+# optional: category (default "Other"; ordered by the top-level `categories:` list), toolbar (default true), width/height (default 1200x800), user_agent, zoom (e.g. 1.1),
+#           cpu_quota / memory_max (override the defaults below), shortcut (true: listed on the ★ Shortcuts tab)
+defaults:
+  cpu_quota: 75%
+  memory_max: 1500M
+
+# Display order of the dashboard's columns, with an icon/emoji and an optional description.
+# Categories used by sites but not listed here come after these (alphabetically).
+categories:
+  - name: Tools
+    icon: "🛠"
+    description: Web tools
+  - name: Dev
+    icon: "💻"
+    description: Code and projects
+  - name: Reference
+    icon: "📚"
+
+sites:
+  - id: excalidraw
+    category: Tools
+    name: Excalidraw
+    description: Virtual whiteboard for sketching diagrams
+    url: https://excalidraw.com
+    icon: https://excalidraw.com/apple-touch-icon.png
+    toolbar: false
+    shortcut: true
+
+  - id: photopea
+    category: Tools
+    name: Photopea
+    description: Online image editor
+    url: https://www.photopea.com
+    icon: https://www.photopea.com/promo/icon512.png
+    toolbar: false
+    width: 1400
+    height: 900
+
+  - id: github
+    category: Dev
+    name: GitHub
+    description: Repositories, issues and pull requests
+    url: https://github.com
+    icon: https://github.com/fluidicon.png
+    shortcut: true
+
+  - id: wikipedia
+    category: Reference
+    name: Wikipedia
+    description: The free encyclopedia
+    url: https://en.wikipedia.org
+    icon: https://en.wikipedia.org/static/apple-touch/wikipedia.png
+    zoom: 1.1
+
+  # A self-hosted service, e.g. on a Tailscale tailnet:
+  # - id: homeassistant
+  #   category: Home
+  #   name: Home Assistant
+  #   description: Home automation
+  #   url: https://homeassistant.your-tailnet.ts.net
+  #   icon: icons/homeassistant.png
+  #   shortcut: true
